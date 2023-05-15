@@ -36,5 +36,5 @@ func main() {
 	ausr, _ := types.NewAdminUser("admin@admin.com", "admin")
 	userstore.Insert(ausr)
 
-	r.Run(":8080")
+	r.Run()
 }
