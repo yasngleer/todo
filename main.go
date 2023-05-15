@@ -13,7 +13,6 @@ func main() {
 	r := gin.Default()
 	v1 := r.Group("/api")
 	db, _ := gorm.Open(sqlite.Open("test_file.db"), &gorm.Config{})
-	v1.GET("/test", func(c *gin.Context) { c.String(200, "asd") })
 	userstore := store.NewGormUserStore(db)
 
 	userhandler := api.NewUserHandler(userstore)
