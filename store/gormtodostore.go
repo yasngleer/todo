@@ -41,6 +41,16 @@ func (s *GormTodoStore) GetTodoByID(id int, showdeleted bool) (types.TodoList, e
 		return todo, err
 	}
 }
+func (s *GormTodoStore) GetTodoPercentageByID(id int) (int64, error) {
+	var all int64 = 0
+	var done int64 = 0
+	s.db.Model(&types.TodoStep{}).Where(&types.TodoStep{TodoListID: id}).Count(&all)
+	s.db.Model(&types.TodoStep{}).Where(&types.TodoStep{TodoListID: id, Completed: true}).Count(&done)
+	percentage := float64(done) / float64(all)
+
+	return int64(percentage * 100), nil
+}
+
 func (s *GormTodoStore) GetTodosByUserid(userid int, showdeleted bool) ([]types.TodoList, error) {
 	todos := []types.TodoList{}
 	if showdeleted {
