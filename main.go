@@ -33,5 +33,5 @@ func main() {
 	v1.DELETE("/todo/:todoid/step/:stepid", todohandler.DeleteStep)
 	//v1.DELETE("/todo/:todoid", todohandler.DeleteTodo)
 
-	r.Run(":8080")
+	r.Run(":80")
 }

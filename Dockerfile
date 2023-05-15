@@ -20,7 +20,7 @@ WORKDIR /
 
 COPY --from=build /docker-gs-ping /docker-gs-ping
 
-EXPOSE 8080
+EXPOSE 80
 
 
 ENTRYPOINT ["/docker-gs-ping"]
