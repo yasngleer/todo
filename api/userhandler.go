@@ -46,6 +46,6 @@ func (u *UserHandler) UserLogin(c *gin.Context) {
 		c.JSON(200, usr.ToLoginResponse())
 		return
 	}
-	c.String(200, "zort")
+	c.Status(400)
 
 }
