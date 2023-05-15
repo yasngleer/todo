@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yasngleer/todo/api"
 	"github.com/yasngleer/todo/store"
+	"github.com/yasngleer/todo/types"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -27,11 +28,13 @@ func main() {
 	v1.GET("/todo/", todohandler.GetAll)
 	v1.PUT("/todo/:todoid", todohandler.UpdateTodo)
 	v1.DELETE("/todo/:todoid", todohandler.DeleteTodo)
-
 	v1.POST("/todo/:id/step", todohandler.AddStep)
 	v1.PUT("/todo/:todoid/step/:stepid", todohandler.UpdateStep)
 	v1.DELETE("/todo/:todoid/step/:stepid", todohandler.DeleteStep)
-	//v1.DELETE("/todo/:todoid", todohandler.DeleteTodo)
 
-	r.Run(":80")
+	//create admin user. Not a good idea ,demo only
+	ausr, _ := types.NewAdminUser("admin@admin.com", "admin")
+	userstore.Insert(ausr)
+
+	r.Run(":8080")
 }

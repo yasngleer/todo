@@ -45,3 +45,12 @@ func (t *TodoList) ToResponse() *TodoListResponse {
 		PercentOfCompletion: t.PercentOfCompletion,
 	}
 }
+
+func TodoListsToResponse(t []TodoList) []TodoListResponse {
+	r := []TodoListResponse{}
+	for _, asd := range t {
+		x := asd.ToResponse()
+		r = append(r, *x)
+	}
+	return r
+}

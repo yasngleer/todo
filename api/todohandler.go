@@ -1,12 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/yasngleer/todo/store"
 	"github.com/yasngleer/todo/types"
@@ -60,19 +58,10 @@ func (h *TodoHandler) DeleteStep(c *gin.Context) {
 	stepidint, _ := strconv.Atoi(stepid)
 
 	user, _ := h.userStore.GetById(userid.(int))
-	step, _ := h.todoStore.GetStepByID(stepidint, false)
-	todo, _ := h.todoStore.GetTodoByID(step.TodoListID, false)
+	step, _ := h.todoStore.GetStepByID(stepidint, user.IsAdmin)
+	todo, _ := h.todoStore.GetTodoByID(step.TodoListID, user.IsAdmin)
 	if !user.IsAdmin && user.ID != todo.UserID {
-		c.String(401, "err")
-		fmt.Println("----")
-		spew.Dump(user)
-		fmt.Println("----")
-
-		spew.Dump(step)
-		fmt.Println("----")
-
-		spew.Dump(todo)
-
+		c.Status(401)
 		return
 	}
 	currenttime := time.Now()
@@ -91,7 +80,7 @@ func (h *TodoHandler) DeleteTodo(c *gin.Context) {
 	todoid, _ := strconv.Atoi(c.Param("todoid"))
 
 	user, _ := h.userStore.GetById(userid.(int))
-	todo, _ := h.todoStore.GetTodoByID(todoid, false)
+	todo, _ := h.todoStore.GetTodoByID(todoid, user.IsAdmin)
 	if !user.IsAdmin && user.ID != todo.UserID {
 		c.Status(401)
 		return
@@ -111,7 +100,9 @@ func (h *TodoHandler) GetOne(c *gin.Context) {
 	}
 	user, _ := h.userStore.GetById(value.(int))
 	idint, _ := strconv.Atoi(id)
-	todo, _ := h.todoStore.GetTodoByID(idint, false)
+	todo, _ := h.todoStore.GetTodoByID(idint, user.IsAdmin)
+	percentage, _ := h.todoStore.GetTodoPercentageByID(idint)
+	todo.PercentOfCompletion = int(percentage)
 	if !user.IsAdmin && user.ID != todo.UserID {
 		c.Status(401)
 		return
@@ -139,9 +130,11 @@ func (h *TodoHandler) GetAll(c *gin.Context) {
 		c.Status(401)
 		return
 	}
+	var todos []types.TodoList
 
-	todos, _ := h.todoStore.GetTodosByUserid(useridint, false)
-	c.JSON(200, todos)
+	todos, _ = h.todoStore.GetTodosByUserid(useridint, user.IsAdmin)
+
+	c.JSON(200, types.TodoListsToResponse(todos))
 }
 
 type StepCreateRequest struct {
@@ -163,7 +156,7 @@ func (h *TodoHandler) AddStep(c *gin.Context) {
 	}
 	user, _ := h.userStore.GetById(value.(int))
 	todoidint, _ := strconv.Atoi(todoid)
-	todo, _ := h.todoStore.GetTodoByID(todoidint, false)
+	todo, _ := h.todoStore.GetTodoByID(todoidint, user.IsAdmin)
 	if !user.IsAdmin && user.ID != todo.UserID {
 		c.Status(401)
 		return
@@ -194,22 +187,19 @@ func (h *TodoHandler) UpdateStep(c *gin.Context) {
 	value, exists := c.Get("user_id")
 	if !exists {
 		c.Status(401)
-		c.String(401, "no user id token")
 		return
 	}
 	user, _ := h.userStore.GetById(value.(int))
 
-	step, _ := h.todoStore.GetStepByID(stepid, false)
-	todo, _ := h.todoStore.GetTodoByID(step.TodoListID, false)
+	step, _ := h.todoStore.GetStepByID(stepid, user.IsAdmin)
+	todo, _ := h.todoStore.GetTodoByID(step.TodoListID, user.IsAdmin)
 	if !user.IsAdmin && user.ID != todo.UserID {
 		c.Status(401)
-		c.String(401, "no access")
-
 		return
 	}
+
 	if req.Context != nil {
 		step.Context = *req.Context
-
 	}
 
 	if req.Completed != nil {
@@ -240,7 +230,7 @@ func (h *TodoHandler) UpdateTodo(c *gin.Context) {
 	}
 	user, _ := h.userStore.GetById(value.(int))
 
-	todo, _ := h.todoStore.GetTodoByID(todoid, false)
+	todo, _ := h.todoStore.GetTodoByID(todoid, user.IsAdmin)
 	if !user.IsAdmin && user.ID != todo.UserID {
 		c.Status(401)
 		return
