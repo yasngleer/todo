@@ -1,8 +1,13 @@
 You can access the api from:
+
 https://todo-production-8c32.up.railway.app/
+
 admin e-mail: admin@admin.com
+
 admin password: admin
+
 user e-mail: example@example.com
+
 user password: example
 
 ### Installation 
